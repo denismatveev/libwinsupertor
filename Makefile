@@ -1,5 +1,4 @@
 #
-# This Makefile heavily abuses the stamp idiom :-)
 #
 
 OPENSSL_VERSION ?= 1.0.2n
@@ -10,7 +9,8 @@ LIBEVENT_URL = https://github.com/libevent/libevent/releases/download/release-$(
 
 CURL_VERSION ?= 7.59.0
 CURL_URL = https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz
-
+ZLIB_VERSION ?= 1.2.11
+ZLIB_URL = http://zlib.net/zlib-$(ZLIB_VERSION).tar.gz
 MINGW  ?= mingw
 HOST   ?= i686-w64-mingw32
 
@@ -21,7 +21,7 @@ LD     ?= $(HOST)-ld
 AR     ?= $(HOST)-ar
 RANLIB ?= $(HOST)-ranlib
 
-PREFIX ?= $(PWD)/prefix
+PREFIX_DIR ?= $(PWD)/prefix
 
 all: prepare tor
 
@@ -31,28 +31,18 @@ prepare:
 	mkdir -p src dist prefix || true
 
 
-#Curl
-
-src/libcurl-fetch-stamp:
-	wget $(CURL_URL) -P dist/
+#ZLIB static
+src/zlib-fetch-stamp:
+	wget $(ZLIB_URL) -P dist/
 	touch $@
-
-src/libcurl-unpack-stamp: src/libcurl-fetch-stamp
-	tar xfzv dist/curl-${CURL_VERSION}.tar.gz -C src/
+src/zlib-unpack-stamp: src/zlib-fetch-stamp
+	tar xfzv dist/zlib-${ZLIB_VERSION}.tar.gz -C src/
 	touch $@
-
-src/libcurl-build-stamp: src/libcurl-unpack-stamp
-	cd src/curl-${CURL_VERSION} && \
-	 	./configure --host=${HOST} --build=x86_64-linux-gnu \
-	      --disable-rt --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
-              --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smb --disable-smtp \
-              --disable-gopher --disable-sspi --disable-ntlm-wb --disable-tls-srp --without-zlib --disable-threaded-resolver \
-              --disable-file --prefix=$(PREFIX) && \
-		make && \
-		make install
+src/zlib-build-stamp: src/zlib-unpack-stamp
+	cd src/zlib-${ZLIB_VERSION} && \
+	make -f win32/Makefile.gcc BINARY_PATH=${PREFIX_DIR}/bin INCLUDE_PATH=${PREFIX_DIR}/include LIBRARY_PATH=${PREFIX_DIR}/lib SHARED_MODE=1 PREFIX=i686-w64-mingw32- install
 	touch $@
-
-
+	
 # OpenSSL.
 src/openssl-fetch-stamp:
 	wget $(OPENSSL_URL) -P dist/
@@ -66,11 +56,31 @@ src/openssl-build-stamp: src/openssl-unpack-stamp
 	cd src/openssl-$(OPENSSL_VERSION) && \
 		./Configure $(MINGW) shared      \
 		--cross-compile-prefix=$(HOST)-  \
-		--prefix=$(PREFIX) &&            \
+		--prefix=$(PREFIX_DIR) &&            \
 		make &&                          \
 		make install
 	touch $@
 
+#Curl
+
+src/libcurl-fetch-stamp: 
+	wget $(CURL_URL) -P dist/
+	touch $@
+
+src/libcurl-unpack-stamp: src/libcurl-fetch-stamp
+	tar xfzv dist/curl-${CURL_VERSION}.tar.gz -C src/
+	touch $@
+
+src/libcurl-build-stamp: src/libcurl-unpack-stamp src/openssl-build-stamp 
+	cd src/curl-${CURL_VERSION} && \
+	 	./configure --host=${HOST} --build=x86_64-linux-gnu \
+	      --disable-rt --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
+              --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smb --disable-smtp \
+              --disable-gopher --disable-sspi --disable-ntlm-wb --disable-tls-srp --without-zlib --disable-threaded-resolver \
+              --disable-file --with-ssl=$(PREFIX_DIR) --prefix=$(PREFIX_DIR) && \
+		make && \
+		make install
+	touch $@
 # Libevent.
 src/libevent-fetch-stamp:
 	wget $(LIBEVENT_URL) -P dist/
@@ -83,7 +93,7 @@ src/libevent-unpack-stamp: src/libevent-fetch-stamp
 src/libevent-build-stamp: src/libevent-unpack-stamp
 	cd src/libevent-$(LIBEVENT_VERSION) && \
 		./configure --host=$(HOST)         \
-		--prefix=$(PREFIX) &&              \
+		--prefix=$(PREFIX_DIR) &&              \
 		make &&                            \
 		make install
 	touch $@
@@ -97,17 +107,19 @@ src/tor-configure-stamp: src/tor-fetch-stamp
 	cd src/tor && ./autogen.sh
 	touch $@
 
-tor: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp
+tor: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/zlib-build-stamp
 	cd src/tor &&                          \
 		./configure --host=$(HOST)         \
+		--enable-static-tor		   \
 		--disable-asciidoc                 \
 		--disable-zstd                     \
 		--disable-lzma                     \
+		--with-zlib-dir=$(PREFIX_DIR)          \
 		--enable-static-libevent           \
-		--with-libevent-dir=$(PREFIX)      \
+		--with-libevent-dir=$(PREFIX_DIR)      \
 		--enable-static-openssl            \
-		--with-openssl-dir=$(PREFIX)       \
-		--prefix=$(PREFIX) &&              \
+		--with-openssl-dir=$(PREFIX_DIR)       \
+		--prefix=$(PREFIX_DIR) &&              \
 		make &&                            \
 		make install
 
