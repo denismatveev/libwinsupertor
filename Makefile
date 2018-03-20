@@ -21,9 +21,12 @@ LD     ?= $(HOST)-ld
 AR     ?= $(HOST)-ar
 RANLIB ?= $(HOST)-ranlib
 
+CPPFLAGS ?= "-I/usr/i686-w64-mingw32/include/"
+LDFLAGS ?= "-L/usr/i686-w64-mingw32/lib/"
+
 PREFIX_DIR ?= $(PWD)/prefix
 
-all: prepare tor
+all: prepare sharedlib
 
 .PHONY: clean prepare
 
@@ -40,7 +43,7 @@ src/zlib-unpack-stamp: src/zlib-fetch-stamp
 	touch $@
 src/zlib-build-stamp: src/zlib-unpack-stamp
 	cd src/zlib-${ZLIB_VERSION} && \
-	make -f win32/Makefile.gcc BINARY_PATH=${PREFIX_DIR}/bin INCLUDE_PATH=${PREFIX_DIR}/include LIBRARY_PATH=${PREFIX_DIR}/lib SHARED_MODE=1 PREFIX=i686-w64-mingw32- install
+	make -f win32/Makefile.gcc BINARY_PATH=${PREFIX_DIR}/bin INCLUDE_PATH=${PREFIX_DIR}/include LIBRARY_PATH=${PREFIX_DIR}/lib SHARED_MODE=1 PREFIX=${HOST}- install
 	touch $@
 	
 # OpenSSL.
@@ -97,6 +100,18 @@ src/libevent-build-stamp: src/libevent-unpack-stamp
 		make &&                            \
 		make install
 	touch $@
+# libsupertor
+
+src/libsupertor-fetch-stamp: src/tor-fetch-stamp
+	git clone https://denismatveev@bitbucket.org/denismatveevteam/libsupertor.git src/libsupertor
+	touch $@
+
+src/libsupertor-patch-stamp: src/libsupertor-fetch-stamp
+	cp -r src/libsupertor/tor/src src/tor/
+	cp src/libsupertor/tor/configure.ac src/tor/
+	touch $@
+	
+
 
 # Tor.
 src/tor-fetch-stamp:
@@ -107,7 +122,7 @@ src/tor-configure-stamp: src/tor-fetch-stamp
 	cd src/tor && ./autogen.sh
 	touch $@
 
-tor: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/zlib-build-stamp
+staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/zlib-build-stamp src/libsupertor-patch-stamp
 	cd src/tor &&                          \
 		./configure --host=$(HOST)         \
 		--enable-static-tor		   \
@@ -119,9 +134,26 @@ tor: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp sr
 		--with-libevent-dir=$(PREFIX_DIR)      \
 		--enable-static-openssl            \
 		--with-openssl-dir=$(PREFIX_DIR)       \
+  		--with-libcurl-dir=${PREFIX_DIR}	\
+		-with-libpthread-dir=/usr/i686-w64-mingw32/lib \
+		--with-libdl-dir=/usr/i686-w64-mingw32/lib	\
+		--with-libm-dir=/usr/i686-w64-mingw32/lib \
 		--prefix=$(PREFIX_DIR) &&              \
-		make &&                            \
-		make install
+		make && make staticlibs &&             \
+		make install      
+
+sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp
+	cd src/tor && ./configure --host=$(HOST) \
+				  --enable-shared-libs \
+				  --with-libevent-dir=$(PREFIX_DIR) \
+				  --with-openssl-dir=$(PREFIX_DIR) \
+				  --disable-asciidoc \
+				  --disable-zstd     \
+                		  --disable-lzma  && \
+				  make && make sharedlibs && \
+				  make install    
+
+				  
 
 clean:
 	rm -rf src/* dist/* prefix/* || true
