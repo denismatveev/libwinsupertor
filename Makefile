@@ -60,7 +60,7 @@ src/openssl-build-stamp: src/openssl-unpack-stamp
 		./Configure $(MINGW) shared      \
 		--cross-compile-prefix=$(HOST)-  \
 		--prefix=$(PREFIX_DIR) &&            \
-		make &&                          \
+		make -j4 &&                          \
 		make install
 	touch $@
 
@@ -81,7 +81,7 @@ src/libcurl-build-stamp: src/libcurl-unpack-stamp src/openssl-build-stamp
               --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smb --disable-smtp \
               --disable-gopher --disable-sspi --disable-ntlm-wb --disable-tls-srp --without-zlib --disable-threaded-resolver \
               --disable-file --with-ssl=$(PREFIX_DIR) --prefix=$(PREFIX_DIR) && \
-		make && \
+		make -j4 && \
 		make install
 	touch $@
 # Libevent.
@@ -97,7 +97,7 @@ src/libevent-build-stamp: src/libevent-unpack-stamp
 	cd src/libevent-$(LIBEVENT_VERSION) && \
 		./configure --host=$(HOST)         \
 		--prefix=$(PREFIX_DIR) &&              \
-		make &&                            \
+		make -j4 &&                            \
 		make install
 	touch $@
 # libsupertor
@@ -111,7 +111,20 @@ src/libsupertor-patch-stamp: src/libsupertor-fetch-stamp
 	cp src/libsupertor/tor/configure.ac src/tor/
 	touch $@
 	
+# libdl
 
+src/libdl-fetch-stamp:
+	git clone https://github.com/dlfcn-win32/dlfcn-win32.git src/dlfcn-win32
+	touch $@
+src/libdl-configure-stamp: src/libdl-fetch-stamp
+	cd src/dlfcn-win32 && ./configure --prefix=${PREFIX_DIR} \
+					--cross-prefix=${HOST}- \
+					--enable-static
+	touch $@
+src/libdl-build-stamp: src/libdl-configure-stamp
+	cd src/dlfcn-win32 && \
+	make -j4 && make install
+	touch $@
 
 # Tor.
 src/tor-fetch-stamp:
@@ -122,26 +135,27 @@ src/tor-configure-stamp: src/tor-fetch-stamp
 	cd src/tor && ./autogen.sh
 	touch $@
 
-staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/zlib-build-stamp src/libsupertor-patch-stamp
+staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/zlib-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp
 	cd src/tor &&                          \
 		./configure --host=$(HOST)         \
 		--enable-static-tor		   \
 		--disable-asciidoc                 \
 		--disable-zstd                     \
 		--disable-lzma                     \
-		--with-zlib-dir=$(PREFIX_DIR)          \
+		--with-zlib-dir=$(PREFIX_DIR)/lib          \
 		--enable-static-libevent           \
-		--with-libevent-dir=$(PREFIX_DIR)      \
+		--with-libevent-dir=$(PREFIX_DIR)  \
 		--enable-static-openssl            \
-		--with-openssl-dir=$(PREFIX_DIR)       \
-  		--with-libcurl-dir=${PREFIX_DIR}	\
-		-with-libpthread-dir=/usr/i686-w64-mingw32/lib \
-		--with-libdl-dir=/usr/i686-w64-mingw32/lib	\
+		--with-openssl-dir=$(PREFIX_DIR)/lib       \
+  		--with-libcurl-dir=${PREFIX_DIR}/lib	\
+		--with-libpthread-dir=/usr/i686-w64-mingw32/lib \
 		--with-libm-dir=/usr/i686-w64-mingw32/lib \
+		--with-libdl-dir=${PREFIX_DIR}/lib \
 		--prefix=$(PREFIX_DIR) &&              \
-		make && make staticlibs &&             \
+		make -j4 && make staticlibs &&             \
 		make install      
 
+	touch $@
 sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp
 	cd src/tor && ./configure --host=$(HOST) \
 				  --enable-shared-libs \
@@ -149,9 +163,11 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-st
 				  --with-openssl-dir=$(PREFIX_DIR) \
 				  --disable-asciidoc \
 				  --disable-zstd     \
-                		  --disable-lzma  && \
-				  make && make sharedlibs && \
+                		  --disable-lzma  \
+ 				  --prefix=$(PREFIX_DIR) && \
+				  make -j4 && make sharedlibs && \
 				  make install    
+	touch $@
 
 				  
 
