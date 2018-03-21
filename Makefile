@@ -21,10 +21,10 @@ LD     ?= $(HOST)-ld
 AR     ?= $(HOST)-ar
 RANLIB ?= $(HOST)-ranlib
 
-CPPFLAGS ?= "-I/usr/i686-w64-mingw32/include/"
-LDFLAGS ?= "-L/usr/i686-w64-mingw32/lib/"
-
 PREFIX_DIR ?= $(PWD)/prefix
+CPPFLAGS ?= "-I/usr/i686-w64-mingw32/include/ -I${PREFIX_DIR}/include"
+LDFLAGS ?= "-L/usr/i686-w64-mingw32/lib/ -L${PREFIX_DIR}/lib"
+
 
 all: prepare sharedlib
 
@@ -156,14 +156,17 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		make install      
 
 	touch $@
-sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp
+sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp src/zlib-build-stamp
 	cd src/tor && ./configure --host=$(HOST) \
 				  --enable-shared-libs \
-				  --with-libevent-dir=$(PREFIX_DIR) \
-				  --with-openssl-dir=$(PREFIX_DIR) \
 				  --disable-asciidoc \
 				  --disable-zstd     \
                 		  --disable-lzma  \
+				  --with-libpthread-dir=/usr/i686-w64-mingw32/lib \
+				  --with-openssl-dir=$(PREFIX_DIR)/lib       \
+				  --with-libcurl-dir=${PREFIX_DIR}/lib	\
+				  --with-libdl-dir=${PREFIX_DIR}/lib \
+				  --with-libm-dir=/usr/i686-w64-mingw32/lib \
  				  --prefix=$(PREFIX_DIR) && \
 				  make -j4 && make sharedlibs && \
 				  make install    
