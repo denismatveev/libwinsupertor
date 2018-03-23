@@ -21,7 +21,7 @@ LD     ?= $(HOST)-ld
 AR     ?= $(HOST)-ar
 RANLIB ?= $(HOST)-ranlib
 
-PREFIX_DIR ?= $(PWD)/prefix-win
+export PREFIX_DIR ?= $(PWD)/prefix-win
 #CFLAGS ?= "-I/usr/i686-w64-mingw32/include/ -I${PREFIX_DIR}/include"
 #LDFLAGS ?= "-L/usr/i686-w64-mingw32/lib/ -L${PREFIX_DIR}/lib"
 #export LDFLAGS="$LDFLAGS -L/usr/i686-w64-mingw32/lib/ -L${PREFIX_DIR}/lib"
@@ -143,6 +143,8 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--disable-asciidoc                 \
 		--disable-zstd                     \
 		--disable-lzma                     \
+		--disable-system-torrc \
+		--disable-unittests \
 		--with-zlib-dir=$(PREFIX_DIR)/lib          \
 		--enable-static-libevent           \
 		--with-libevent-dir=$(PREFIX_DIR)  \
@@ -171,7 +173,7 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--disable-system-torrc \
 		--disable-unittests \
 		--prefix=$(PREFIX_DIR) && \
-		make -j4 && make sharedlibs
+		make -j4 && make sharedlibs WIN=1
 	touch src/$@
 
 				  
