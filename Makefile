@@ -21,10 +21,11 @@ LD     ?= $(HOST)-ld
 AR     ?= $(HOST)-ar
 RANLIB ?= $(HOST)-ranlib
 
-PREFIX_DIR ?= $(PWD)/prefix
+PREFIX_DIR ?= $(PWD)/prefix-win
 CPPFLAGS ?= "-I/usr/i686-w64-mingw32/include/ -I${PREFIX_DIR}/include"
 LDFLAGS ?= "-L/usr/i686-w64-mingw32/lib/ -L${PREFIX_DIR}/lib"
-
+#export LDFLAGS="$LDFLAGS -L/usr/i686-w64-mingw32/lib/ -L/root/libwinsupertor/prefix-win/lib"
+#export LIBS="$LIBS -l:libssl.dll.a -l:libevent.dll.a -l:libcrypto.dll.a -l:libz.dll.a -l:libpthread.dll.a -l:libcurl.dll.a -lws2_32"
 
 all: prepare sharedlib
 
@@ -153,7 +154,6 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--with-libdl-dir=${PREFIX_DIR}/lib \
 		--prefix=$(PREFIX_DIR) &&              \
 		make -j4 && make staticlibs &&             \
-		make install      
 
 	touch $@
 sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp src/zlib-build-stamp
@@ -169,7 +169,6 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 				  --with-libm-dir=/usr/i686-w64-mingw32/lib \
  				  --prefix=$(PREFIX_DIR) && \
 				  make -j4 && make sharedlibs && \
-				  make install    
 	touch $@
 
 				  
