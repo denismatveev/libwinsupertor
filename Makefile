@@ -155,7 +155,7 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--prefix=$(PREFIX_DIR) &&              \
 		make -j4 && make staticlibs
 
-	touch $@
+	touch src/$@
 
 sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp src/zlib-build-stamp
 	cd src/tor && ./configure --host=$(HOST) \
@@ -172,7 +172,7 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--disable-unittests \
 		--prefix=$(PREFIX_DIR) && \
 		make -j4 && make sharedlibs
-	touch $@
+	touch src/$@
 
 				  
 
