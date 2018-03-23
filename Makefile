@@ -148,30 +148,30 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--with-libevent-dir=$(PREFIX_DIR)  \
 		--enable-static-openssl            \
 		--with-openssl-dir=$(PREFIX_DIR)/lib       \
-  		--with-libcurl-dir=${PREFIX_DIR}/lib	\
+		--with-libcurl-dir=${PREFIX_DIR}/lib	\
 		--with-libpthread-dir=/usr/i686-w64-mingw32/lib \
 		--with-libm-dir=/usr/i686-w64-mingw32/lib \
 		--with-libdl-dir=${PREFIX_DIR}/lib \
 		--prefix=$(PREFIX_DIR) &&              \
-		make -j4 && make staticlibs 
+		make -j4 && make staticlibs
 
 	touch $@
 
 sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp src/zlib-build-stamp
 	cd src/tor && ./configure --host=$(HOST) \
-			  --enable-shared-libs \
-			  --disable-asciidoc \
-			  --disable-zstd     \
-               		  --disable-lzma  \
-			  --with-libpthread-dir=/usr/i686-w64-mingw32/lib \
-			  --with-openssl-dir=$(PREFIX_DIR)/lib       \
-			  --with-libcurl-dir=${PREFIX_DIR}/lib	\
-			  --with-libdl-dir=${PREFIX_DIR}/lib \
-			  --with-libm-dir=/usr/i686-w64-mingw32/lib \
-			  --disable-system-torrc \
-			  --disable-unittests \
-			  --prefix=$(PREFIX_DIR) && \
-			  make -j4 && make sharedlibs 
+		--enable-shared-libs \
+		--disable-asciidoc \
+		--disable-zstd     \
+		--disable-lzma  \
+		--with-libpthread-dir=/usr/i686-w64-mingw32/lib \
+		--with-openssl-dir=$(PREFIX_DIR)/lib       \
+		--with-libcurl-dir=${PREFIX_DIR}/lib	\
+		--with-libdl-dir=${PREFIX_DIR}/lib \
+		--with-libm-dir=/usr/i686-w64-mingw32/lib \
+		--disable-system-torrc \
+		--disable-unittests \
+		--prefix=$(PREFIX_DIR) && \
+		make -j4 && make sharedlibs
 	touch $@
 
 				  
