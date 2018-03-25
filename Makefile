@@ -11,8 +11,11 @@ CURL_VERSION ?= 7.59.0
 CURL_URL = https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz
 ZLIB_VERSION ?= 1.2.11
 ZLIB_URL = http://zlib.net/zlib-$(ZLIB_VERSION).tar.gz
-MINGW  ?= mingw
-HOST   ?= i686-w64-mingw32
+MINGW  ?= mingw64
+#for WIN32
+#HOST ?= i686-w64-mingw32
+#For WIN64
+HOST ?= x86_64-w64-mingw32
 
 CC     ?= $(HOST)-gcc
 CXX    ?= $(HOST)-g++
@@ -151,8 +154,8 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--enable-static-openssl            \
 		--with-openssl-dir=$(PREFIX_DIR)/lib       \
 		--with-libcurl-dir=${PREFIX_DIR}/lib	\
-		--with-libpthread-dir=/usr/i686-w64-mingw32/lib \
-		--with-libm-dir=/usr/i686-w64-mingw32/lib \
+		--with-libpthread-dir=/usr/${HOST}/lib \
+		--with-libm-dir=/usr/${HOST}/lib \
 		--with-libdl-dir=${PREFIX_DIR}/lib \
 		--prefix=$(PREFIX_DIR) &&              \
 		make -j4 && make staticlibs
@@ -165,11 +168,11 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--disable-asciidoc \
 		--disable-zstd     \
 		--disable-lzma  \
-		--with-libpthread-dir=/usr/i686-w64-mingw32/lib \
+		--with-libpthread-dir=/usr/${HOST}/lib \
 		--with-openssl-dir=$(PREFIX_DIR)/lib       \
 		--with-libcurl-dir=${PREFIX_DIR}/lib	\
 		--with-libdl-dir=${PREFIX_DIR}/lib \
-		--with-libm-dir=/usr/i686-w64-mingw32/lib \
+		--with-libm-dir=/usr/${HOST}/lib \
 		--disable-system-torrc \
 		--disable-unittests \
 		--prefix=$(PREFIX_DIR) && \
