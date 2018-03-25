@@ -15,7 +15,7 @@ MINGW  ?= mingw64
 #for WIN32
 #HOST ?= i686-w64-mingw32
 #For WIN64
-HOST ?= x86_64-w64-mingw32
+export HOST ?= x86_64-w64-mingw32
 
 CC     ?= $(HOST)-gcc
 CXX    ?= $(HOST)-g++
@@ -156,6 +156,8 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--with-libcurl-dir=${PREFIX_DIR}/lib	\
 		--with-libpthread-dir=/usr/${HOST}/lib \
 		--with-libm-dir=/usr/${HOST}/lib \
+		--with-libc-dir=/usr/${HOST}/lib \
+		--with-librt-dir=/usr/${HOST}/lib \
 		--with-libdl-dir=${PREFIX_DIR}/lib \
 		--prefix=$(PREFIX_DIR) &&              \
 		make -j4 && make staticlibs
@@ -180,6 +182,9 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 	touch src/$@
 
 				  
+testsharedapp: sharedlib
 
+teststaticapp: staticlib
+	$(HOST)-gcc -static src/libsupertor/app/main.c -L$(PREFIX_DIR)/lib -Lsrc/tor/src/libs/static/ -L/usr/${HOST}/lib -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -static-libgcc -static-libstdc++ -lssp -lws2_32 -o app-win-static.exe	
 clean:
 	rm -rf src/* dist/* prefix/* || true
