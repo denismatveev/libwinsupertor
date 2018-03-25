@@ -156,8 +156,6 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/libcurl-build-st
 		--with-libcurl-dir=${PREFIX_DIR}/lib	\
 		--with-libpthread-dir=/usr/${HOST}/lib \
 		--with-libm-dir=/usr/${HOST}/lib \
-		--with-libc-dir=/usr/${HOST}/lib \
-		--with-librt-dir=/usr/${HOST}/lib \
 		--with-libdl-dir=${PREFIX_DIR}/lib \
 		--prefix=$(PREFIX_DIR) &&              \
 		make -j4 && make staticlibs
