@@ -183,6 +183,6 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-st
 testsharedapp: sharedlib
 
 teststaticapp: staticlib
-	$(HOST)-gcc -static src/libsupertor/app/main.c -L$(PREFIX_DIR)/lib -Lsrc/tor/src/libs/static/ -L/usr/${HOST}/lib -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -static-libgcc -static-libstdc++ -lssp -lws2_32 -o app-win-static.exe	
+	${HOST}-gcc -static src/libsupertor/app/main.c -L${PREFIX_DIR}/lib -Lsrc/tor/src/libs/static/ -L/usr/${HOST}/lib -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -static-libgcc -static-libstdc++ -o app-win-static.exe
 clean:
 	rm -rf src/* dist/* prefix/* || true
