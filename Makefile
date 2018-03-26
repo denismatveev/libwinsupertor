@@ -59,7 +59,7 @@ src/openssl-unpack-stamp: src/openssl-fetch-stamp
 	tar zxfv dist/openssl-$(OPENSSL_VERSION).tar.gz -C src/
 	touch $@
 
-src/openssl-shared-build-stamp: src/openssl-unpack-stamp
+src/openssl-build-stamp: src/openssl-unpack-stamp
 	cd src/openssl-$(OPENSSL_VERSION) && \
 		./Configure $(MINGW) shared      \
 		--cross-compile-prefix=$(HOST)-  \
@@ -68,14 +68,6 @@ src/openssl-shared-build-stamp: src/openssl-unpack-stamp
 		make install
 	touch $@
 
-src/openssl-no-shared-build-stamp: src/openssl-unpack-stamp
-	cd src/openssl-$(OPENSSL_VERSION) && \
-		./Configure $(MINGW) no-shared      \
-		--cross-compile-prefix=$(HOST)-  \
-		--prefix=$(PREFIX_DIR) &&            \
-		make -j4 &&                          \
-		make install
-	touch $@
 #Curl
 
 src/libcurl-fetch-stamp: 
@@ -147,7 +139,7 @@ src/tor-configure-stamp: src/tor-fetch-stamp
 	cd src/tor && ./autogen.sh
 	touch $@
 
-staticlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-no-shared-build-stamp src/libcurl-build-stamp src/zlib-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp
+staticlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/zlib-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp
 	cd src/tor &&                          \
 		./configure --host=$(HOST)         \
 		--enable-static-tor		   \
@@ -170,7 +162,7 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-no-share
 
 	touch src/$@
 
-sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-shared-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp src/zlib-build-stamp
+sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp src/zlib-build-stamp
 	cd src/tor && ./configure --host=$(HOST) \
 		--enable-shared-libs \
 		--disable-asciidoc \
