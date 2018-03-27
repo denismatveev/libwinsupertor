@@ -15,8 +15,7 @@ MINGW  ?= mingw64
 #for WIN32
 #HOST ?= i686-w64-mingw32
 #For WIN64
-export HOST ?= x86_64-w64-mingw32
-
+HOST ?= x86_64-w64-mingw32
 CC     ?= $(HOST)-gcc
 CXX    ?= $(HOST)-g++
 CPP    ?= $(HOST)-cpp
@@ -24,7 +23,9 @@ LD     ?= $(HOST)-ld
 AR     ?= $(HOST)-ar
 RANLIB ?= $(HOST)-ranlib
 
-export PREFIX_DIR ?= $(PWD)/prefix-win
+PREFIX_DIR ?= $(PWD)/prefix-win
+export HOST
+export PREFIX_DIR
 #CFLAGS ?= "-I/usr/i686-w64-mingw32/include/ -I${PREFIX_DIR}/include"
 #LDFLAGS ?= "-L/usr/i686-w64-mingw32/lib/ -L${PREFIX_DIR}/lib"
 #export LDFLAGS="$LDFLAGS -L/usr/i686-w64-mingw32/lib/ -L${PREFIX_DIR}/lib"
@@ -84,7 +85,7 @@ src/libcurl-build-stamp: src/libcurl-unpack-stamp
 	      --disable-rt --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
               --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smb --disable-smtp \
               --disable-gopher --disable-sspi --disable-ntlm-wb --disable-tls-srp --without-zlib --disable-threaded-resolver \
-              --disable-file --with-ssl=$(PREFIX_DIR) --prefix=$(PREFIX_DIR) && \
+              --disable-file --with-winssl=$(PREFIX_DIR) --prefix=$(PREFIX_DIR) && \
 		make -j4 && \
 		make install
 	touch $@
@@ -135,11 +136,15 @@ src/tor-fetch-stamp:
 	git clone https://git.torproject.org/tor.git src/tor
 	touch $@
 
-src/tor-configure-stamp: src/tor-fetch-stamp
+src/tor-configure-stamp: src/libsupertor-patch-stamp
 	cd src/tor && ./autogen.sh
 	touch $@
 
-staticlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/zlib-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp
+src/fetch-all: src/tor-fetch-stamp src/libdl-fetch-stamp src/libsupertor-fetch-stamp src/libevent-fetch-stamp src/libcurl-fetch-stamp src/zlib-fetch-stamp src/openssl-fetch-stamp
+
+src/unpack-all: src/libevent-unpack-stamp src/libcurl-unpack-stamp src/zlib-unpack-stamp src/openssl-unpack-stamp src/fetch-all
+
+staticlib: src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/zlib-build-stamp  src/libdl-build-stamp src/tor-configure-stamp
 	cd src/tor &&                          \
 		./configure --host=$(HOST)         \
 		--enable-static-tor		   \
@@ -162,7 +167,7 @@ staticlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-st
 
 	touch src/$@
 
-sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp src/libsupertor-patch-stamp src/libdl-build-stamp src/zlib-build-stamp
+sharedlib: src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-stamp  src/libdl-build-stamp src/zlib-build-stamp src/tor-configure-stamp
 	cd src/tor && ./configure --host=$(HOST) \
 		--enable-shared-libs \
 		--disable-asciidoc \
@@ -183,6 +188,6 @@ sharedlib: src/tor-configure-stamp src/libevent-build-stamp src/openssl-build-st
 testsharedapp: sharedlib
 
 teststaticapp: staticlib
-	${HOST}-gcc -static src/libsupertor/app/main.c -L${PREFIX_DIR}/lib -Lsrc/tor/src/libs/static/ -L/usr/${HOST}/lib -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -static-libgcc -static-libstdc++ -o app-win-static.exe
+	${HOST}-gcc -static src/libsupertor/app/main.c -L${PREFIX_DIR}/lib -Lsrc/tor/src/libs/static/ -L/usr/${HOST}/lib -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -lgcc -lstdc++ -lgdi32 -o app-win-static.exe
 clean:
 	rm -rf src/* dist/* prefix/* || true
