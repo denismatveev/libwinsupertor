@@ -163,7 +163,7 @@ staticlib: src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-st
 		--with-libm-dir=/usr/${HOST}/lib \
 		--with-libdl-dir=${PREFIX_DIR}/lib \
 		--prefix=$(PREFIX_DIR) &&              \
-		make -j4 && make staticlibs
+		make CFLAGS=-DCURL_STATICLIB -j4 && make staticlibs WIN=1
 
 	touch src/$@
 
@@ -188,6 +188,6 @@ sharedlib: src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-st
 testsharedapp: sharedlib
 
 teststaticapp: staticlib
-	${HOST}-gcc -static src/libsupertor/app/main.c -L${PREFIX_DIR}/lib -Lsrc/tor/src/libs/static/ -L/usr/${HOST}/lib -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -lgcc -lstdc++ -lgdi32 -o app-win-static.exe
+	${HOST}-gcc -static src/libsupertor/app/main.c -Lsrc/tor/src/libs/static/ -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -o app-win-static.exe
 clean:
 	rm -rf src/* dist/* prefix/* || true
