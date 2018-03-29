@@ -1,7 +1,7 @@
 # How to build executable file under Linux for Windows 
 ## Install packages(example for Ubuntu or Debian)
 ````bash
-$sudo apt-get uodate && sudo apt-get install binutils-mingw-w64-i686 \
+$ sudo apt-get uodate && sudo apt-get install binutils-mingw-w64-i686 \
 binutils-mingw-w64-x86-64 \
 g++-mingw-w64-i686 \
 g++-mingw-w64-x86-64 \
