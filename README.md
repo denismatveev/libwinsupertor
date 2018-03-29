@@ -26,7 +26,7 @@ $ cd libwinsupertor && make sharedlib
 ````
 If you want to create static lib, please type:
 ````bash
-# make staticlib
+$ make staticlib
 ````
 
 shared lib is located in libwinsupertor/src/tor/src/lib/shared and named libwinsupertor.dll, static lib built in ibwinsupertor/src/tor/src/lib/static and has name libwinsupertor.a
@@ -34,21 +34,21 @@ shared lib is located in libwinsupertor/src/tor/src/lib/shared and named libwins
 Also there are two targets in Makefile to create test app with static and shared libs: teststaticapp and testsharedapp. You can run 
 
 ````bash
-make teststaticapp
+$ make teststaticapp
 ````
 or
 
 ````bash
-make testsharedapp
+$ make testsharedapp
 ````
 and get library and test application. Application will be in directory libwinsupertor.
 
 # How to link an application
 
 ````bash
-x86_64-w64-mingw32-gcc -static main.c -L. -lcurl -lsupertor -I/root/libwinsupertor/src/tor/src/proxytor/ -I/root/libwinsupertor/src/tor/src/or -I/root/libwinsupertor/prefix-win/include/ -o app-win-static.exe
+$ x86_64-w64-mingw32-gcc -static main.c -L. -lcurl -lsupertor -I/root/libwinsupertor/src/tor/src/proxytor/ -I/root/libwinsupertor/src/tor/src/or -I/root/libwinsupertor/prefix-win/include/ -o app-win-static.exe
 ````
 
 ````bash
-x86_64-w64-mingw32-gcc main.c -L. -lsupertor  -I/root/libwinsupertor/prefix-win/include/ -I/root/libwinsupertor/src/tor/src/proxytor/ -o app-shared-win.exe
+$ x86_64-w64-mingw32-gcc main.c -L. -lsupertor  -I/root/libwinsupertor/prefix-win/include/ -I/root/libwinsupertor/src/tor/src/proxytor/ -o app-shared-win.exe
 ````
