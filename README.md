@@ -29,7 +29,7 @@ If you want to create static lib, please type:
 $ make staticlib
 ````
 
-shared lib is located in libwinsupertor/src/tor/src/lib/shared and named libwinsupertor.dll, static lib built in ibwinsupertor/src/tor/src/lib/static and has name libwinsupertor.a
+shared lib is located in `libwinsupertor/src/tor/src/lib/shared` and named `libwinsupertor.dll`, static lib built in `libwinsupertor/src/tor/src/lib/static` and has name `libwinsupertor.a`
 
 Also there are two targets in Makefile to create test app with static and shared libs: teststaticapp and testsharedapp. You can run 
 
