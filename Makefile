@@ -186,6 +186,7 @@ sharedlib: src/libevent-build-stamp src/openssl-build-stamp src/libcurl-build-st
 
 				  
 testsharedapp: sharedlib
+	${HOST}-gcc src/libsupertor/app/main.c -Lsrc/tor/src/libs/shared -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -o app-win-shared.exe
 
 teststaticapp: staticlib
 	${HOST}-gcc -static src/libsupertor/app/main.c -Lsrc/tor/src/libs/static/ -lsupertor -I./src/tor/src/proxytor/ -I./src/tor/src/or -I${PREFIX_DIR}/include/ -o app-win-static.exe
