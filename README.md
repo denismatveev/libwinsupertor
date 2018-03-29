@@ -16,7 +16,7 @@ mingw-w64-tools \
 mingw-w64-x86-64-dev \
 mingw32 \
 mingw32-binutils \
-$ sudo apt install autoconf automake libtool
+autoconf automake libtool
 ````
 ## Building
 
