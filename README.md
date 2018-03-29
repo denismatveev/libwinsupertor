@@ -16,12 +16,37 @@ mingw-w64-tools \
 mingw-w64-x86-64-dev \
 mingw32 \
 mingw32-binutils \
+$ sudo apt install autoconf automake libtool
 ````
+## Building
+
+````bash
+$ git clone https://denismatveev@bitbucket.org/denismatveevteam/libwinsupertor.git
+$ cd libwinsupertor && make sharedlib
+````
+If you want to create static lib, please type:
+````bash
+# make staticlib
+````
+
+shared lib is located in libwinsupertor/src/tor/src/lib/shared and named libwinsupertor.dll, static lib built in ibwinsupertor/src/tor/src/lib/static and has name libwinsupertor.a
+
+Also there are two targets in Makefile to create test app with static and shared libs: teststaticapp and testsharedapp. You can run 
+
+````bash
+make teststaticapp
+````
+or
+
+````bash
+make testsharedapp
+````
+and get library and test application. Application will be in directory libwinsupertor.
 
 # How to link an application
 
 ````bash
-x86_64-w64-mingw32-gcc -static main.c -L. -lcurl -lsupertor -I/root/libwinsupertor/src/tor/src/proxytor/ -I/root/libwinsupertor/src/tor/src/or -I/root/libwinsupertor/prefix-win/include/ -lssp -static-libgcc -static-libstdc++ -lws2_32 -o app-win-static.exe
+x86_64-w64-mingw32-gcc -static main.c -L. -lcurl -lsupertor -I/root/libwinsupertor/src/tor/src/proxytor/ -I/root/libwinsupertor/src/tor/src/or -I/root/libwinsupertor/prefix-win/include/ -o app-win-static.exe
 ````
 
 ````bash
