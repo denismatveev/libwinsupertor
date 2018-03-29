@@ -1,3 +1,23 @@
+# How to build executable file under Linux for Windows 
+## Install packages(example for Ubuntu or Debian)
+````bash
+$sudo apt-get uodate && sudo apt-get install binutils-mingw-w64-i686 \
+binutils-mingw-w64-x86-64 \
+g++-mingw-w64-i686 \
+g++-mingw-w64-x86-64 \
+gcc-mingw-w64-base \
+gcc-mingw-w64-i686 \
+gcc-mingw-w64-x86-64 \
+libz-mingw-w64 \
+libz-mingw-w64-dev \
+mingw-w64-common \
+mingw-w64-i686-dev \
+mingw-w64-tools \
+mingw-w64-x86-64-dev \
+mingw32 \
+mingw32-binutils \
+````
+
 # How to link an application
 
 ````bash
