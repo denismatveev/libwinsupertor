@@ -46,7 +46,7 @@ and get library and test application. Application will be in directory libwinsup
 # How to link an application
 
 ````bash
-$ x86_64-w64-mingw32-gcc -static main.c -L. -lcurl -lsupertor -I/root/libwinsupertor/src/tor/src/proxytor/ -I/root/libwinsupertor/src/tor/src/or -I/root/libwinsupertor/prefix-win/include/ -o app-win-static.exe
+$ x86_64-w64-mingw32-gcc -static main.c -L. -lsupertor -I/root/libwinsupertor/src/tor/src/proxytor/ -I/root/libwinsupertor/src/tor/src/or -I/root/libwinsupertor/prefix-win/include/ -o app-win-static.exe
 ````
 
 ````bash
