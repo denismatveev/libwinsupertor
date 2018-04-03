@@ -52,3 +52,4 @@ $ x86_64-w64-mingw32-gcc -static main.c -L. -lsupertor -I/root/libwinsupertor/sr
 ````bash
 $ x86_64-w64-mingw32-gcc main.c -L. -lsupertor  -I/root/libwinsupertor/prefix-win/include/ -I/root/libwinsupertor/src/tor/src/proxytor/ -o app-shared-win.exe
 ````
+P.S. Due to compilation process takes long time I recommend to use tmux or screen.
