@@ -108,7 +108,7 @@ src/libevent-build-stamp: src/libevent-unpack-stamp
 # libsupertor
 
 src/libsupertor-fetch-stamp: src/tor-fetch-stamp
-	git clone https://denismatveev@bitbucket.org/denismatveevteam/libsupertor.git src/libsupertor
+    git clone https://github.com/denismatveev/libwinsupertor.git
 	touch $@
 
 src/libsupertor-patch-stamp: src/libsupertor-fetch-stamp
