@@ -21,7 +21,7 @@ autoconf automake libtool
 ## Building
 
 ````bash
-$ git clone https://denismatveev@bitbucket.org/denismatveevteam/libwinsupertor.git
+$ git clone https://github.com/denismatveev/libwinsupertor.git
 $ cd libwinsupertor && make sharedlib
 ````
 If you want to create static lib, please type:
